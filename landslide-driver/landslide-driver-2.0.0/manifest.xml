@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resourceDriver>
+    <manifestVersion>1.4</manifestVersion>    
+    <version>1.0.0</version>    
+    <vendor>Spirent</vendor>    
+    <language>itest</language>
+    <supportCustomArguments></supportCustomArguments>   
+    <interface>Management</interface>
+    <entryPoint>landslide.fftc</entryPoint>
+    <portTemplate>5GC-Landslide Ethernet Port Interface</portTemplate>
+    <resourceProperties>    
+        <property optional="true">
+            <name>ipAddress</name>
+            <description>IP address of the Landslide Test Server</description>
+        </property>
+        <property optional="true">
+            <name>Hostname</name>
+            <description>Hostname of the Landslide Test Server</description>
+        </property>
+        <property optional="true">
+            <name>TS Name</name>
+            <description>Landslide TS Name</description>
+        </property>
+        <property optional="true">
+            <name>username</name>
+            <description>username to authenticate using basic authentication</description>
+        </property>       
+        <property optional="true">
+            <name>password</name>
+            <description>password to authenticate using basic authentication</description>
+        </property>
+        <property optional="true">
+            <name>Room</name>
+            <description>Hostname or IP address of Landslide TAS that the TS is located in.</description>
+        </property>       
+    </resourceProperties>
+</resourceDriver>
