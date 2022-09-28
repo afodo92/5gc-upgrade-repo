@@ -1,18 +1,20 @@
 <?xml version="1.0"?>
-<testCase version="9.1.0.202205181514">
+<testCase version="9.1.0.202208021803">
     <general>
         <language>Python</language>
     </general>
     <execution>
-        <parameters version="9.1.0.202205181514">
+        <parameters version="9.1.0.202208021803">
             <parameters escape="true">
                 <parameters xmlns:pt="http://www.fnfr.com/schemas/parameterTree">
                     <delete_library pt:datatype="BOOLEAN">true</delete_library>
-                    <ste_dir>D:/clister/5gc-aap - ste</ste_dir>
+                    <ste_dir/>
                     <export pt:datatype="BOOLEAN">false</export>
-                    <co_library>CO</co_library>
-                    <cp_pf_library>CAPACITY</cp_pf_library>
-                    <se_library>SECURITY</se_library>
+                    <co_library>Gen-CO</co_library>
+                    <cp_pf_library>Gen-CP-PF</cp_pf_library>
+                    <se_library>Gen-SA</se_library>
+                    <oran_mid_haul_library>Gen-Mid-Haul</oran_mid_haul_library>
+                    <oran_front_haul_library>Gen-Front-Haul</oran_front_haul_library>
                     <tas_url>http://10.140.68.124:8080/api/</tas_url>
                     <tas_user>sms</tas_user>
                     <tas_password>a1b2c3d4</tas_password>
@@ -79,6 +81,63 @@
                             </command>
                             <applicationProperties type="com.fnfr.svt.documents.EmptyPropertyGroup"/>
                         </item>
+                        <item guid="74a67be2-48ad-4694-9f11-87b42ca6ae41" action="eval" useFieldsInCommand="false">
+                            <command>
+                                <body>mid_haul_name = param(&apos;oran_mid_haul_library&apos;)</body>
+                            </command>
+                            <applicationProperties type="com.fnfr.svt.documents.EmptyPropertyGroup"/>
+                        </item>
+                        <item guid="a33fd158-e600-4dab-9308-899cd23376fa" action="eval" useFieldsInCommand="false">
+                            <command>
+                                <body>front_haul_name = param(&apos;oran_front_haul_library&apos;)</body>
+                            </command>
+                            <applicationProperties type="com.fnfr.svt.documents.EmptyPropertyGroup"/>
+                        </item>
+                        <item guid="45b25ca0-135d-4594-a1b5-26813afff596" action="eval" useFieldsInCommand="false">
+                            <command>
+                                <body>walk_dir = param(&apos;ste_dir&apos;)</body>
+                            </command>
+                            <applicationProperties type="com.fnfr.svt.documents.EmptyPropertyGroup"/>
+                        </item>
+                        <item guid="93e8a272-026d-441b-a607-14b6ab1479b6" action="if" useFieldsInCommand="false">
+                            <command>
+                                <body>not os.path.exists(walk_dir):</body>
+                            </command>
+                            <nestedSteps>
+                                <item guid="e5b21846-77f0-4f96-b80c-4c35f99caaa1" action="message" useFieldsInCommand="false">
+                                    <command>
+                                        <body>Error:STE dir is wrong path. Please correct param &quot;ste_dir&quot;</body>
+                                    </command>
+                                    <postProcessing>
+                                        <analysisRules>
+                                            <item>
+                                                <extractorInfo extractorType="none">
+                                                    <extractorProperties type="com.fnfr.svt.documents.EmptyExtractorPropertyGroup"/>
+                                                </extractorInfo>
+                                                <processorInfo ruleType="assert">
+                                                    <ruleProperties type="com.fnfr.svt.execution.builtin.processors.AssertionPropertyGroup">
+                                                        <expression>True</expression>
+                                                        <actionsWhenTrue>
+                                                            <item actionId="FailTest">
+                                                                <actionProperties type="com.fnfr.svt.documents.EmptyPropertyGroup"/>
+                                                            </item>
+                                                            <item actionId="ExitExecution">
+                                                                <actionProperties type="com.fnfr.svt.documents.EmptyPropertyGroup"/>
+                                                            </item>
+                                                        </actionsWhenTrue>
+                                                    </ruleProperties>
+                                                </processorInfo>
+                                            </item>
+                                        </analysisRules>
+                                    </postProcessing>
+                                    <applicationProperties type="com.fnfr.svt.execution.builtin.exec.MessagePropertyGroup">
+                                        <severity inherit="false">Error</severity>
+                                        <message inherit="false">STE dir is wrong path. Please correct param &quot;ste_dir&quot;</message>
+                                    </applicationProperties>
+                                </item>
+                            </nestedSteps>
+                            <applicationProperties type="com.fnfr.svt.documents.EmptyPropertyGroup"/>
+                        </item>
                     </nestedSteps>
                     <applicationProperties type="com.fnfr.svt.documents.EmptyPropertyGroup"/>
                 </item>
@@ -100,7 +159,7 @@
                             <nestedSteps>
                                 <item guid="afb2025f-1993-45c6-b8bd-2308c4721fff" action="eval" useFieldsInCommand="false">
                                     <command>
-                                        <body>co_id = capacity_id = security_id = &quot;&quot;</body>
+                                        <body>co_id = capacity_id = security_id = mid_haul_id = front_haul_id = &quot;&quot;</body>
                                     </command>
                                     <applicationProperties type="com.fnfr.svt.documents.EmptyPropertyGroup"/>
                                 </item>
@@ -110,7 +169,7 @@
                                             <item>
                                                 <extractorInfo extractorType="query">
                                                     <extractorProperties type="com.fnfr.svt.mapping.execution.extractors.QueryDataExtractorPropertyGroup" declareNoMatchIssue="false">
-                                                        <query sub="true">[param(&apos;co_library&apos;)]()</query>
+                                                        <query sub="true">[co_name.replace(&quot;-&quot;, &quot;_&quot;)]()</query>
                                                     </extractorProperties>
                                                 </extractorInfo>
                                                 <processorInfo ruleType="store">
@@ -125,7 +184,7 @@
                                             <item>
                                                 <extractorInfo extractorType="query">
                                                     <extractorProperties type="com.fnfr.svt.mapping.execution.extractors.QueryDataExtractorPropertyGroup" declareNoMatchIssue="false">
-                                                        <query sub="true">[param(&apos;cp_pf_library&apos;)]()</query>
+                                                        <query sub="true">[capacity_name.replace(&quot;-&quot;, &quot;_&quot;)]()</query>
                                                     </extractorProperties>
                                                 </extractorInfo>
                                                 <processorInfo ruleType="store">
@@ -140,12 +199,76 @@
                                             <item>
                                                 <extractorInfo extractorType="query">
                                                     <extractorProperties type="com.fnfr.svt.mapping.execution.extractors.QueryDataExtractorPropertyGroup" declareNoMatchIssue="false">
-                                                        <query sub="true">[param(&apos;se_library&apos;)]()</query>
+                                                        <query sub="true">[security_name.replace(&quot;-&quot;, &quot;_&quot;)]()</query>
                                                     </extractorProperties>
                                                 </extractorInfo>
                                                 <processorInfo ruleType="store">
                                                     <ruleProperties type="com.fnfr.svt.execution.builtin.processors.StoreProcessorPropertyGroup">
                                                         <storageLocation>security_id</storageLocation>
+                                                        <responseValue type="com.fnfr.documents.PropertyBoolean">false</responseValue>
+                                                        <variable type="com.fnfr.documents.PropertyBoolean">true</variable>
+                                                        <secret type="com.fnfr.documents.PropertyBoolean">false</secret>
+                                                    </ruleProperties>
+                                                </processorInfo>
+                                            </item>
+                                            <item>
+                                                <extractorInfo extractorType="query">
+                                                    <extractorProperties type="com.fnfr.svt.mapping.execution.extractors.QueryDataExtractorPropertyGroup" declareNoMatchIssue="false">
+                                                        <query sub="true">[mid_haul_name.replace(&quot;-&quot;, &quot;_&quot;)]()</query>
+                                                    </extractorProperties>
+                                                </extractorInfo>
+                                                <processorInfo ruleType="store">
+                                                    <ruleProperties type="com.fnfr.svt.execution.builtin.processors.StoreProcessorPropertyGroup">
+                                                        <storageLocation>mid_haul_id</storageLocation>
+                                                        <responseValue type="com.fnfr.documents.PropertyBoolean">false</responseValue>
+                                                        <variable type="com.fnfr.documents.PropertyBoolean">true</variable>
+                                                        <secret type="com.fnfr.documents.PropertyBoolean">false</secret>
+                                                    </ruleProperties>
+                                                </processorInfo>
+                                            </item>
+                                            <item>
+                                                <extractorInfo extractorType="query">
+                                                    <extractorProperties type="com.fnfr.svt.mapping.execution.extractors.QueryDataExtractorPropertyGroup">
+                                                        <query sub="true">boolean(//[front_haul_name.replace(&quot;-&quot;, &quot;_&quot;)])</query>
+                                                    </extractorProperties>
+                                                </extractorInfo>
+                                                <processorInfo ruleType="assert">
+                                                    <ruleProperties type="com.fnfr.svt.execution.builtin.processors.AssertionPropertyGroup">
+                                                        <expression>value == &quot;true&quot;</expression>
+                                                        <actionsWhenTrue>
+                                                            <item actionId="Eval">
+                                                                <actionProperties type="com.fnfr.svt.execution.builtin.actions.EvalActionPropertyGroup">
+                                                                    <statement>exist_front_haul = True</statement>
+                                                                </actionProperties>
+                                                            </item>
+                                                        </actionsWhenTrue>
+                                                        <actionsWhenFalse>
+                                                            <item actionId="DeclareExecutionIssue">
+                                                                <actionProperties type="com.fnfr.svt.execution.builtin.actions.ExecutionIssuePropertyGroup" severity="Warning">
+                                                                    <message>Cannot find [front_haul_name]. Ignore this library.</message>
+                                                                </actionProperties>
+                                                            </item>
+                                                            <item actionId="Eval">
+                                                                <actionProperties type="com.fnfr.svt.execution.builtin.actions.EvalActionPropertyGroup">
+                                                                    <statement>exist_front_haul = False</statement>
+                                                                </actionProperties>
+                                                            </item>
+                                                            <item actionId="SkipRemainingRules">
+                                                                <actionProperties type="com.fnfr.svt.documents.EmptyPropertyGroup"/>
+                                                            </item>
+                                                        </actionsWhenFalse>
+                                                    </ruleProperties>
+                                                </processorInfo>
+                                            </item>
+                                            <item>
+                                                <extractorInfo extractorType="query">
+                                                    <extractorProperties type="com.fnfr.svt.mapping.execution.extractors.QueryDataExtractorPropertyGroup" declareNoMatchIssue="false">
+                                                        <query sub="true">[front_haul_name.replace(&quot;-&quot;, &quot;_&quot;)]()</query>
+                                                    </extractorProperties>
+                                                </extractorInfo>
+                                                <processorInfo ruleType="store">
+                                                    <ruleProperties type="com.fnfr.svt.execution.builtin.processors.StoreProcessorPropertyGroup">
+                                                        <storageLocation>front_haul_id</storageLocation>
                                                         <responseValue type="com.fnfr.documents.PropertyBoolean">false</responseValue>
                                                         <variable type="com.fnfr.documents.PropertyBoolean">true</variable>
                                                         <secret type="com.fnfr.documents.PropertyBoolean">false</secret>
@@ -437,6 +560,190 @@
                                             </nestedSteps>
                                             <applicationProperties type="com.fnfr.svt.documents.EmptyPropertyGroup"/>
                                         </item>
+                                        <item guid="1b84097c-4e9e-4c66-8a96-79c2b7944173" action="if" useFieldsInCommand="false">
+                                            <command>
+                                                <body>mid_haul_id:</body>
+                                            </command>
+                                            <nestedSteps>
+                                                <item guid="f70975ff-0bb9-422b-b6c4-6a8c5ecb37f5" action="Custom" session="s1">
+                                                    <command>
+                                                        <body>-requestMethod DELETE -dataType json -url libraries/[mid_haul_id]</body>
+                                                    </command>
+                                                    <postProcessing>
+                                                        <analysisRules>
+                                                            <item>
+                                                                <extractorInfo extractorType="query">
+                                                                    <extractorProperties type="com.fnfr.svt.mapping.execution.extractors.QueryDataExtractorPropertyGroup">
+                                                                        <query>result()</query>
+                                                                    </extractorProperties>
+                                                                </extractorInfo>
+                                                                <processorInfo ruleType="assert">
+                                                                    <ruleProperties type="com.fnfr.svt.execution.builtin.processors.AssertionPropertyGroup">
+                                                                        <expression>str(value) == &quot;Custom Library deleted successfully&quot;</expression>
+                                                                        <actionsWhenTrue>
+                                                                            <item actionId="PassTestIfNotAlreadyFailed">
+                                                                                <actionProperties type="com.fnfr.svt.documents.EmptyPropertyGroup"/>
+                                                                            </item>
+                                                                            <item actionId="DeclareExecutionIssue">
+                                                                                <actionProperties type="com.fnfr.svt.execution.builtin.actions.ExecutionIssuePropertyGroup" severity="OK">
+                                                                                    <message>Custom Library &quot;[mid_haul_name]&quot; deleted successfully</message>
+                                                                                </actionProperties>
+                                                                            </item>
+                                                                        </actionsWhenTrue>
+                                                                        <actionsWhenFalse>
+                                                                            <item actionId="FailTest">
+                                                                                <actionProperties type="com.fnfr.svt.documents.EmptyPropertyGroup"/>
+                                                                            </item>
+                                                                            <item actionId="DeclareExecutionIssue">
+                                                                                <actionProperties type="com.fnfr.svt.execution.builtin.actions.ExecutionIssuePropertyGroup">
+                                                                                    <message>Can&apos;t delete &quot;[mid_haul_name]&quot; library</message>
+                                                                                </actionProperties>
+                                                                            </item>
+                                                                        </actionsWhenFalse>
+                                                                    </ruleProperties>
+                                                                </processorInfo>
+                                                            </item>
+                                                        </analysisRules>
+                                                    </postProcessing>
+                                                    <applicationProperties type="com.fnfr.itest.platform2.shared.documents.ntaf.NtafTransferableDocumentObject" action="Custom" subharness="http://spirent.com/NTAF/harness/iTest/LandslideRest/Main" harness="http://spirent.com/NTAF/harness/iTest/LandslideRest/Main" harnessName="http://spirent.com/NTAF/harness/iTest/LandslideRest/Main" requestMethod="DELETE" requestMethod.inherit="false" url="libraries/[mid_haul_id]" url.inherit="false"/>
+                                                </item>
+                                                <item guid="5945dce3-810f-4d48-a2e3-a0bcbb41e542" action="Custom" session="s1">
+                                                    <command>
+                                                        <body>-requestMethod POST -dataType json -requestBody &apos;{&quot;name&quot;:&quot;[mid_haul_name]&quot;, &quot;permissions&quot;:&quot;all&quot;}&apos; -url libraries</body>
+                                                    </command>
+                                                    <postProcessing>
+                                                        <analysisRules>
+                                                            <item>
+                                                                <extractorInfo extractorType="query">
+                                                                    <extractorProperties type="com.fnfr.svt.mapping.execution.extractors.QueryDataExtractorPropertyGroup">
+                                                                        <query>result()</query>
+                                                                    </extractorProperties>
+                                                                </extractorInfo>
+                                                                <processorInfo ruleType="assert">
+                                                                    <ruleProperties type="com.fnfr.svt.execution.builtin.processors.AssertionPropertyGroup">
+                                                                        <expression>str(value) == &quot;Custom Library created successfully&quot;</expression>
+                                                                        <actionsWhenTrue>
+                                                                            <item actionId="PassTestIfNotAlreadyFailed">
+                                                                                <actionProperties type="com.fnfr.svt.documents.EmptyPropertyGroup"/>
+                                                                            </item>
+                                                                            <item actionId="DeclareExecutionIssue">
+                                                                                <actionProperties type="com.fnfr.svt.execution.builtin.actions.ExecutionIssuePropertyGroup" severity="OK">
+                                                                                    <message>Custom Library &quot;[mid_haul_name]&quot; created successfully</message>
+                                                                                </actionProperties>
+                                                                            </item>
+                                                                        </actionsWhenTrue>
+                                                                        <actionsWhenFalse>
+                                                                            <item actionId="FailTest">
+                                                                                <actionProperties type="com.fnfr.svt.documents.EmptyPropertyGroup"/>
+                                                                            </item>
+                                                                            <item actionId="DeclareExecutionIssue">
+                                                                                <actionProperties type="com.fnfr.svt.execution.builtin.actions.ExecutionIssuePropertyGroup">
+                                                                                    <message>Can&apos;t create &quot;[mid_haul_name]&quot; library</message>
+                                                                                </actionProperties>
+                                                                            </item>
+                                                                        </actionsWhenFalse>
+                                                                    </ruleProperties>
+                                                                </processorInfo>
+                                                            </item>
+                                                        </analysisRules>
+                                                    </postProcessing>
+                                                    <applicationProperties type="com.fnfr.itest.platform2.shared.documents.ntaf.NtafTransferableDocumentObject" action="Custom" subharness="http://spirent.com/NTAF/harness/iTest/LandslideRest/Main" harness="http://spirent.com/NTAF/harness/iTest/LandslideRest/Main" harnessName="http://spirent.com/NTAF/harness/iTest/LandslideRest/Main" requestMethod="POST" requestMethod.inherit="false" requestBody="{&quot;name&quot;:&quot;[mid_haul_name]&quot;, &quot;permissions&quot;:&quot;all&quot;}" requestBody.inherit="false" url="libraries" url.inherit="false"/>
+                                                </item>
+                                            </nestedSteps>
+                                            <applicationProperties type="com.fnfr.svt.documents.EmptyPropertyGroup"/>
+                                        </item>
+                                        <item guid="549cfb74-25a5-4b5f-90f9-092ef77b35f3" action="if" useFieldsInCommand="false">
+                                            <command>
+                                                <body>front_haul_id:</body>
+                                            </command>
+                                            <nestedSteps>
+                                                <item guid="28cbbd7d-92e1-4e29-b4ce-570a0cbf8761" action="Custom" session="s1">
+                                                    <command>
+                                                        <body>-requestMethod DELETE -dataType json -url libraries/[front_haul_id]</body>
+                                                    </command>
+                                                    <postProcessing>
+                                                        <analysisRules>
+                                                            <item>
+                                                                <extractorInfo extractorType="query">
+                                                                    <extractorProperties type="com.fnfr.svt.mapping.execution.extractors.QueryDataExtractorPropertyGroup">
+                                                                        <query>result()</query>
+                                                                    </extractorProperties>
+                                                                </extractorInfo>
+                                                                <processorInfo ruleType="assert">
+                                                                    <ruleProperties type="com.fnfr.svt.execution.builtin.processors.AssertionPropertyGroup">
+                                                                        <expression>str(value) == &quot;Custom Library deleted successfully&quot;</expression>
+                                                                        <actionsWhenTrue>
+                                                                            <item actionId="PassTestIfNotAlreadyFailed">
+                                                                                <actionProperties type="com.fnfr.svt.documents.EmptyPropertyGroup"/>
+                                                                            </item>
+                                                                            <item actionId="DeclareExecutionIssue">
+                                                                                <actionProperties type="com.fnfr.svt.execution.builtin.actions.ExecutionIssuePropertyGroup" severity="OK">
+                                                                                    <message>Custom Library &quot;[front_haul_name]&quot; deleted successfully</message>
+                                                                                </actionProperties>
+                                                                            </item>
+                                                                        </actionsWhenTrue>
+                                                                        <actionsWhenFalse>
+                                                                            <item actionId="FailTest">
+                                                                                <actionProperties type="com.fnfr.svt.documents.EmptyPropertyGroup"/>
+                                                                            </item>
+                                                                            <item actionId="DeclareExecutionIssue">
+                                                                                <actionProperties type="com.fnfr.svt.execution.builtin.actions.ExecutionIssuePropertyGroup">
+                                                                                    <message>Can&apos;t delete &quot;[front_haul_name]&quot; library</message>
+                                                                                </actionProperties>
+                                                                            </item>
+                                                                        </actionsWhenFalse>
+                                                                    </ruleProperties>
+                                                                </processorInfo>
+                                                            </item>
+                                                        </analysisRules>
+                                                    </postProcessing>
+                                                    <applicationProperties type="com.fnfr.itest.platform2.shared.documents.ntaf.NtafTransferableDocumentObject" action="Custom" subharness="http://spirent.com/NTAF/harness/iTest/LandslideRest/Main" harness="http://spirent.com/NTAF/harness/iTest/LandslideRest/Main" harnessName="http://spirent.com/NTAF/harness/iTest/LandslideRest/Main" requestMethod="DELETE" requestMethod.inherit="false" url="libraries/[front_haul_id]" url.inherit="false"/>
+                                                </item>
+                                                <item guid="7b965975-63e7-46f9-96b1-e8ed04e46962" action="Custom" session="s1">
+                                                    <command>
+                                                        <body>-requestMethod POST -dataType json -requestBody &apos;{&quot;name&quot;:&quot;[front_haul_name]&quot;, &quot;permissions&quot;:&quot;all&quot;}&apos; -url libraries</body>
+                                                    </command>
+                                                    <postProcessing>
+                                                        <analysisRules>
+                                                            <item>
+                                                                <extractorInfo extractorType="query">
+                                                                    <extractorProperties type="com.fnfr.svt.mapping.execution.extractors.QueryDataExtractorPropertyGroup">
+                                                                        <query>result()</query>
+                                                                    </extractorProperties>
+                                                                </extractorInfo>
+                                                                <processorInfo ruleType="assert">
+                                                                    <ruleProperties type="com.fnfr.svt.execution.builtin.processors.AssertionPropertyGroup">
+                                                                        <expression>str(value) == &quot;Custom Library created successfully&quot;</expression>
+                                                                        <actionsWhenTrue>
+                                                                            <item actionId="PassTestIfNotAlreadyFailed">
+                                                                                <actionProperties type="com.fnfr.svt.documents.EmptyPropertyGroup"/>
+                                                                            </item>
+                                                                            <item actionId="DeclareExecutionIssue">
+                                                                                <actionProperties type="com.fnfr.svt.execution.builtin.actions.ExecutionIssuePropertyGroup" severity="OK">
+                                                                                    <message>Custom Library &quot;[front_haul_name]&quot; created successfully</message>
+                                                                                </actionProperties>
+                                                                            </item>
+                                                                        </actionsWhenTrue>
+                                                                        <actionsWhenFalse>
+                                                                            <item actionId="FailTest">
+                                                                                <actionProperties type="com.fnfr.svt.documents.EmptyPropertyGroup"/>
+                                                                            </item>
+                                                                            <item actionId="DeclareExecutionIssue">
+                                                                                <actionProperties type="com.fnfr.svt.execution.builtin.actions.ExecutionIssuePropertyGroup">
+                                                                                    <message>Can&apos;t create &quot;[front_haul_name]&quot; library</message>
+                                                                                </actionProperties>
+                                                                            </item>
+                                                                        </actionsWhenFalse>
+                                                                    </ruleProperties>
+                                                                </processorInfo>
+                                                            </item>
+                                                        </analysisRules>
+                                                    </postProcessing>
+                                                    <applicationProperties type="com.fnfr.itest.platform2.shared.documents.ntaf.NtafTransferableDocumentObject" action="Custom" subharness="http://spirent.com/NTAF/harness/iTest/LandslideRest/Main" harness="http://spirent.com/NTAF/harness/iTest/LandslideRest/Main" harnessName="http://spirent.com/NTAF/harness/iTest/LandslideRest/Main" requestMethod="POST" requestMethod.inherit="false" requestBody="{&quot;name&quot;:&quot;[front_haul_name]&quot;, &quot;permissions&quot;:&quot;all&quot;}" requestBody.inherit="false" url="libraries" url.inherit="false"/>
+                                                </item>
+                                            </nestedSteps>
+                                            <applicationProperties type="com.fnfr.svt.documents.EmptyPropertyGroup"/>
+                                        </item>
                                     </nestedSteps>
                                     <applicationProperties type="com.fnfr.svt.documents.EmptyPropertyGroup"/>
                                 </item>
@@ -462,7 +769,7 @@
                                             <item>
                                                 <extractorInfo extractorType="query">
                                                     <extractorProperties type="com.fnfr.svt.mapping.execution.extractors.QueryDataExtractorPropertyGroup">
-                                                        <query sub="true">[param(&apos;co_library&apos;)]()</query>
+                                                        <query sub="true">[co_name.replace(&quot;-&quot;, &quot;_&quot;)]()</query>
                                                     </extractorProperties>
                                                 </extractorInfo>
                                                 <processorInfo ruleType="store">
@@ -477,7 +784,7 @@
                                             <item>
                                                 <extractorInfo extractorType="query">
                                                     <extractorProperties type="com.fnfr.svt.mapping.execution.extractors.QueryDataExtractorPropertyGroup">
-                                                        <query sub="true">[param(&apos;cp_pf_library&apos;)]()</query>
+                                                        <query sub="true">[capacity_name.replace(&quot;-&quot;, &quot;_&quot;)]()</query>
                                                     </extractorProperties>
                                                 </extractorInfo>
                                                 <processorInfo ruleType="store">
@@ -492,12 +799,57 @@
                                             <item>
                                                 <extractorInfo extractorType="query">
                                                     <extractorProperties type="com.fnfr.svt.mapping.execution.extractors.QueryDataExtractorPropertyGroup">
-                                                        <query sub="true">[param(&apos;se_library&apos;)]()</query>
+                                                        <query sub="true">[security_name.replace(&quot;-&quot;, &quot;_&quot;)]()</query>
                                                     </extractorProperties>
                                                 </extractorInfo>
                                                 <processorInfo ruleType="store">
                                                     <ruleProperties type="com.fnfr.svt.execution.builtin.processors.StoreProcessorPropertyGroup">
                                                         <storageLocation>security_id</storageLocation>
+                                                        <responseValue type="com.fnfr.documents.PropertyBoolean">false</responseValue>
+                                                        <variable type="com.fnfr.documents.PropertyBoolean">true</variable>
+                                                        <secret type="com.fnfr.documents.PropertyBoolean">false</secret>
+                                                    </ruleProperties>
+                                                </processorInfo>
+                                            </item>
+                                            <item>
+                                                <extractorInfo extractorType="query">
+                                                    <extractorProperties type="com.fnfr.svt.mapping.execution.extractors.QueryDataExtractorPropertyGroup">
+                                                        <query sub="true">[mid_haul_name.replace(&quot;-&quot;, &quot;_&quot;)]()</query>
+                                                    </extractorProperties>
+                                                </extractorInfo>
+                                                <processorInfo ruleType="store">
+                                                    <ruleProperties type="com.fnfr.svt.execution.builtin.processors.StoreProcessorPropertyGroup">
+                                                        <storageLocation>mid_haul_id</storageLocation>
+                                                        <responseValue type="com.fnfr.documents.PropertyBoolean">false</responseValue>
+                                                        <variable type="com.fnfr.documents.PropertyBoolean">true</variable>
+                                                        <secret type="com.fnfr.documents.PropertyBoolean">false</secret>
+                                                    </ruleProperties>
+                                                </processorInfo>
+                                            </item>
+                                            <item>
+                                                <extractorInfo extractorType="none">
+                                                    <extractorProperties type="com.fnfr.svt.documents.EmptyExtractorPropertyGroup"/>
+                                                </extractorInfo>
+                                                <processorInfo ruleType="assert">
+                                                    <ruleProperties type="com.fnfr.svt.execution.builtin.processors.AssertionPropertyGroup">
+                                                        <expression>exist_front_haul</expression>
+                                                        <actionsWhenFalse>
+                                                            <item actionId="SkipRemainingRules">
+                                                                <actionProperties type="com.fnfr.svt.documents.EmptyPropertyGroup"/>
+                                                            </item>
+                                                        </actionsWhenFalse>
+                                                    </ruleProperties>
+                                                </processorInfo>
+                                            </item>
+                                            <item>
+                                                <extractorInfo extractorType="query">
+                                                    <extractorProperties type="com.fnfr.svt.mapping.execution.extractors.QueryDataExtractorPropertyGroup">
+                                                        <query sub="true">[front_haul_name.replace(&quot;-&quot;, &quot;_&quot;)]()</query>
+                                                    </extractorProperties>
+                                                </extractorInfo>
+                                                <processorInfo ruleType="store">
+                                                    <ruleProperties type="com.fnfr.svt.execution.builtin.processors.StoreProcessorPropertyGroup">
+                                                        <storageLocation>front_haul_id</storageLocation>
                                                         <responseValue type="com.fnfr.documents.PropertyBoolean">false</responseValue>
                                                         <variable type="com.fnfr.documents.PropertyBoolean">true</variable>
                                                         <secret type="com.fnfr.documents.PropertyBoolean">false</secret>
@@ -519,12 +871,6 @@
                         <body>Import ste</body>
                     </command>
                     <nestedSteps>
-                        <item guid="eb08ff2f-871a-48a7-97a5-e933f0444c74" action="eval" useFieldsInCommand="false">
-                            <command>
-                                <body>walk_dir = param(&apos;ste_dir&apos;)</body>
-                            </command>
-                            <applicationProperties type="com.fnfr.svt.documents.EmptyPropertyGroup"/>
-                        </item>
                         <item guid="de3c6982-73e0-4333-a330-dadfdbfd98ff" action="eval" useFieldsInCommand="false">
                             <command>
                                 <body>file_count = 0</body>
@@ -655,7 +1001,137 @@
                                                     </nestedSteps>
                                                     <applicationProperties type="com.fnfr.svt.documents.EmptyPropertyGroup"/>
                                                 </item>
-                                                <item guid="102588d5-84a8-48a0-b38b-3c790dac9f12" action="if" useFieldsInCommand="false">
+                                                <item guid="4c1cd61b-bd1f-41a5-a7b1-c9c414f9dab1" action="if" useFieldsInCommand="false">
+                                                    <command>
+                                                        <body>&quot;-cusa-&quot; in file_path.lower() or &quot;-cusa_&quot; in file_path.lower():</body>
+                                                    </command>
+                                                    <nestedSteps>
+                                                        <item guid="c5b4c3cf-a9bd-44c5-9146-26c671c58557" action="ImportTestSuite" session="s1">
+                                                            <command>
+                                                                <body>-filePath [item_path] -library {[mid_haul_name]} -suts Include</body>
+                                                            </command>
+                                                            <postProcessing>
+                                                                <analysisRules>
+                                                                    <item>
+                                                                        <extractorInfo extractorType="query">
+                                                                            <extractorProperties type="com.fnfr.svt.mapping.execution.extractors.QueryDataExtractorPropertyGroup" declareNoMatchIssue="false">
+                                                                                <query>filename()</query>
+                                                                            </extractorProperties>
+                                                                        </extractorInfo>
+                                                                        <processorInfo ruleType="store">
+                                                                            <ruleProperties type="com.fnfr.svt.execution.builtin.processors.StoreProcessorPropertyGroup">
+                                                                                <storageLocation>ste_name</storageLocation>
+                                                                                <responseValue type="com.fnfr.documents.PropertyBoolean">false</responseValue>
+                                                                                <variable type="com.fnfr.documents.PropertyBoolean">true</variable>
+                                                                                <secret type="com.fnfr.documents.PropertyBoolean">false</secret>
+                                                                            </ruleProperties>
+                                                                        </processorInfo>
+                                                                    </item>
+                                                                    <item>
+                                                                        <extractorInfo extractorType="query">
+                                                                            <extractorProperties type="com.fnfr.svt.mapping.execution.extractors.QueryDataExtractorPropertyGroup">
+                                                                                <query>success()</query>
+                                                                            </extractorProperties>
+                                                                        </extractorInfo>
+                                                                        <processorInfo ruleType="assert">
+                                                                            <ruleProperties type="com.fnfr.svt.execution.builtin.processors.AssertionPropertyGroup">
+                                                                                <expression>str(value) == &quot;true&quot;</expression>
+                                                                                <actionsWhenTrue>
+                                                                                    <item actionId="PassTestIfNotAlreadyFailed">
+                                                                                        <actionProperties type="com.fnfr.svt.documents.EmptyPropertyGroup"/>
+                                                                                    </item>
+                                                                                    <item actionId="DeclareExecutionIssue">
+                                                                                        <actionProperties type="com.fnfr.svt.execution.builtin.actions.ExecutionIssuePropertyGroup" severity="OK">
+                                                                                            <message>[ste_name]  -----&gt; &quot;[mid_haul_name]&quot; library</message>
+                                                                                        </actionProperties>
+                                                                                    </item>
+                                                                                </actionsWhenTrue>
+                                                                                <actionsWhenFalse>
+                                                                                    <item actionId="FailTest">
+                                                                                        <actionProperties type="com.fnfr.svt.documents.EmptyPropertyGroup"/>
+                                                                                    </item>
+                                                                                    <item actionId="DeclareExecutionIssue">
+                                                                                        <actionProperties type="com.fnfr.svt.execution.builtin.actions.ExecutionIssuePropertyGroup">
+                                                                                            <message>[ste_name] importe false</message>
+                                                                                        </actionProperties>
+                                                                                    </item>
+                                                                                </actionsWhenFalse>
+                                                                            </ruleProperties>
+                                                                        </processorInfo>
+                                                                    </item>
+                                                                </analysisRules>
+                                                            </postProcessing>
+                                                            <applicationProperties type="com.fnfr.itest.platform2.shared.documents.ntaf.NtafTransferableDocumentObject" action="ImportTestSuite" subharness="http://spirent.com/NTAF/harness/iTest/LandslideRest/Main" harness="http://spirent.com/NTAF/harness/iTest/LandslideRest/Main" harnessName="http://spirent.com/NTAF/harness/iTest/LandslideRest/Main" filePath="[item_path]" filePath.inherit="false" library="{[mid_haul_name]}" library.inherit="false" suts="Include" suts.inherit="false"/>
+                                                        </item>
+                                                    </nestedSteps>
+                                                    <applicationProperties type="com.fnfr.svt.documents.EmptyPropertyGroup"/>
+                                                </item>
+                                                <item guid="5f55aa78-878e-4b7c-a661-d620fd1cf099" action="elif" useFieldsInCommand="false">
+                                                    <command>
+                                                        <body>&quot;-rusa-&quot; in file_path.lower() or &quot;-rusa_&quot; in file_path.lower() or &quot;-dusa-&quot; in file_path.lower() or &quot;-dusa_&quot; in file_path.lower() or &quot;-e-oran-&quot; in file_path.lower() or &quot;-e-oran_&quot; in file_path.lower():</body>
+                                                    </command>
+                                                    <nestedSteps>
+                                                        <item guid="7a04a486-75c1-47e6-adc7-9ca59a84496a" action="ImportTestSuite" session="s1">
+                                                            <command>
+                                                                <body>-filePath [item_path] -library {[front_haul_name]} -suts Include</body>
+                                                            </command>
+                                                            <postProcessing>
+                                                                <analysisRules>
+                                                                    <item>
+                                                                        <extractorInfo extractorType="query">
+                                                                            <extractorProperties type="com.fnfr.svt.mapping.execution.extractors.QueryDataExtractorPropertyGroup" declareNoMatchIssue="false">
+                                                                                <query>filename()</query>
+                                                                            </extractorProperties>
+                                                                        </extractorInfo>
+                                                                        <processorInfo ruleType="store">
+                                                                            <ruleProperties type="com.fnfr.svt.execution.builtin.processors.StoreProcessorPropertyGroup">
+                                                                                <storageLocation>ste_name</storageLocation>
+                                                                                <responseValue type="com.fnfr.documents.PropertyBoolean">false</responseValue>
+                                                                                <variable type="com.fnfr.documents.PropertyBoolean">true</variable>
+                                                                                <secret type="com.fnfr.documents.PropertyBoolean">false</secret>
+                                                                            </ruleProperties>
+                                                                        </processorInfo>
+                                                                    </item>
+                                                                    <item>
+                                                                        <extractorInfo extractorType="query">
+                                                                            <extractorProperties type="com.fnfr.svt.mapping.execution.extractors.QueryDataExtractorPropertyGroup">
+                                                                                <query>success()</query>
+                                                                            </extractorProperties>
+                                                                        </extractorInfo>
+                                                                        <processorInfo ruleType="assert">
+                                                                            <ruleProperties type="com.fnfr.svt.execution.builtin.processors.AssertionPropertyGroup">
+                                                                                <expression>str(value) == &quot;true&quot;</expression>
+                                                                                <actionsWhenTrue>
+                                                                                    <item actionId="PassTestIfNotAlreadyFailed">
+                                                                                        <actionProperties type="com.fnfr.svt.documents.EmptyPropertyGroup"/>
+                                                                                    </item>
+                                                                                    <item actionId="DeclareExecutionIssue">
+                                                                                        <actionProperties type="com.fnfr.svt.execution.builtin.actions.ExecutionIssuePropertyGroup" severity="OK">
+                                                                                            <message>[ste_name]  -----&gt; &quot;[front_haul_name]&quot; library</message>
+                                                                                        </actionProperties>
+                                                                                    </item>
+                                                                                </actionsWhenTrue>
+                                                                                <actionsWhenFalse>
+                                                                                    <item actionId="FailTest">
+                                                                                        <actionProperties type="com.fnfr.svt.documents.EmptyPropertyGroup"/>
+                                                                                    </item>
+                                                                                    <item actionId="DeclareExecutionIssue">
+                                                                                        <actionProperties type="com.fnfr.svt.execution.builtin.actions.ExecutionIssuePropertyGroup">
+                                                                                            <message>[ste_name] importe false</message>
+                                                                                        </actionProperties>
+                                                                                    </item>
+                                                                                </actionsWhenFalse>
+                                                                            </ruleProperties>
+                                                                        </processorInfo>
+                                                                    </item>
+                                                                </analysisRules>
+                                                            </postProcessing>
+                                                            <applicationProperties type="com.fnfr.itest.platform2.shared.documents.ntaf.NtafTransferableDocumentObject" action="ImportTestSuite" subharness="http://spirent.com/NTAF/harness/iTest/LandslideRest/Main" harness="http://spirent.com/NTAF/harness/iTest/LandslideRest/Main" harnessName="http://spirent.com/NTAF/harness/iTest/LandslideRest/Main" filePath="[item_path]" filePath.inherit="false" library="{[front_haul_name]}" library.inherit="false" suts="Include" suts.inherit="false"/>
+                                                        </item>
+                                                    </nestedSteps>
+                                                    <applicationProperties type="com.fnfr.svt.documents.EmptyPropertyGroup"/>
+                                                </item>
+                                                <item guid="102588d5-84a8-48a0-b38b-3c790dac9f12" action="elif" useFieldsInCommand="false">
                                                     <command>
                                                         <body>&quot;-co-&quot; in file_path.lower() or &quot;-co_&quot; in file_path.lower() or &quot;_co-&quot; in file_path.lower() or &quot;_co_&quot; in file_path.lower():</body>
                                                     </command>
@@ -722,7 +1198,7 @@
                                                 </item>
                                                 <item guid="4f905f44-6525-47d1-bcf1-bce6bc3855ee" action="elif" useFieldsInCommand="false">
                                                     <command>
-                                                        <body>&quot;-sa-&quot; in file_path.lower() or &quot;-sa_&quot; in file_path.lower():</body>
+                                                        <body>&quot;-sa-&quot; in file_path.lower() or &quot;-sa_&quot; in file_path.lower() or &quot;-va-&quot; in file_path.lower() or &quot;-va_&quot; in file_path.lower():</body>
                                                     </command>
                                                     <nestedSteps>
                                                         <item guid="b954d117-85f9-4a2a-b844-e07bca12ad50" action="ImportTestSuite" session="s1">
